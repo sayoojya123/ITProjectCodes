@@ -1,0 +1,7 @@
+100,Design,3,10,200
+101,Hardware,3,20,150
+102,Software,3,30,100
+103,Design,9,25,250
+104,Software,7,15,350
+105,Hardware,8,35,300
+106,Hardware,5,20,400

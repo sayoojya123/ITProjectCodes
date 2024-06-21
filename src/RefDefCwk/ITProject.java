@@ -9,7 +9,7 @@ import java.io.*;
  * specified in the BITS interface
  *
  * @author - Sayoojya Santhosh - SRN : 22019548
- *
+ * <p>
  * (or leave blank, if working individually)
  * @author A.A.Marczyk
  * @version 24/04/2024
@@ -19,9 +19,9 @@ public class ITProject implements BITS, Serializable {
 
     private String name;
     private double account;
-    private List<Staff> allStaffs = new ArrayList<>();
-    private List<Staff> membersInTeam = new ArrayList<>();
-    private List<Job> allJobs = new ArrayList<>();
+    private HashMap<String, Staff> allStaffs = new HashMap<>();
+    private HashMap<String, Staff> teamStaffs = new HashMap<>();
+    private HashMap<Integer, Job> allJobs = new HashMap<>();
 
 
 //**************** BITS ************************** 
@@ -112,10 +112,8 @@ public class ITProject implements BITS, Serializable {
      * @returns true if the reference number represents a job
      **/
     public boolean isJob(int num) {
-        for (Job job : allJobs) {
-            if (num == job.getJobNum()) {
-                return true;
-            }
+        if (allJobs.containsKey(num)) {
+            return true;
         }
         return false;
     }
@@ -128,7 +126,7 @@ public class ITProject implements BITS, Serializable {
      **/
     public String getAllJobs() {
         String s = "\n************ All Jobs ************\n\n";
-        for (Job job : allJobs) {
+        for (Job job : allJobs.values()) {
             s += job.toString();
             s += "*".repeat(20) + "\n";
         }
@@ -142,10 +140,8 @@ public class ITProject implements BITS, Serializable {
      * @return returns a String representation of all jobs
      **/
     public String getJob(int no) {
-        for (Job job : allJobs) {
-            if (no == job.getJobNum()) {
-                return job.toString();
-            }
+        if (allJobs.containsKey(no)) {
+            return allJobs.get(no).toString();
         }
         return "No such Job";
     }
@@ -160,7 +156,7 @@ public class ITProject implements BITS, Serializable {
      * in the parameter
      **/
     public String getStaff(String name) {
-        for (Staff staff : allStaffs) {
+        for (Staff staff : allStaffs.values()) {
             if (name.equalsIgnoreCase(staff.getName())) {
                 return staff.toString();
             }
@@ -180,7 +176,7 @@ public class ITProject implements BITS, Serializable {
 
         // robustness check : respond when no staff is available to hire
         int staffAvailableCounter = 0;
-        for (Staff staff : allStaffs) {
+        for (Staff staff : allStaffs.values()) {
             if (staff.getStaffState() == StaffState.AVAILABLE) {
                 s += staff.getName();
                 s += ", ";
@@ -214,14 +210,14 @@ public class ITProject implements BITS, Serializable {
     public String hireStaff(String name) {
         String result = "Staff " + name;
 
-        Staff teamMember = new Staff();
+        Staff teamMember;
         if (!getStaff(name).equals("\nNo such staff")) {
-            teamMember = retreiveStaffDetails(name);
+            teamMember = getStaffData(name);
             if (teamMember.getStaffState() == StaffState.AVAILABLE) {
                 if (account >= teamMember.getRetainer()) {
                     teamMember.setStaffState(StaffState.WORKING);
                     account -= teamMember.getRetainer();
-                    membersInTeam.add(teamMember);
+                    teamStaffs.put(name, teamMember);
                     result += " hired";
 
                 } else {
@@ -246,14 +242,13 @@ public class ITProject implements BITS, Serializable {
      *             to be retrieved
      * @return a Staff object
      */
-    public Staff retreiveStaffDetails(String name) {
-        Staff st = new Staff();
-        for (Staff staff : allStaffs) {
-            if (name.equalsIgnoreCase(staff.getName())) {
-                st = staff;
-            }
-        }
-        return st;
+    public Staff getStaffData(String name) {
+//        Staff st = new Staff();
+//        if (allStaffs.containsKey(name.toLowerCase())) {
+//            st =
+        return allStaffs.get(name.toLowerCase());
+//        }
+//        return st;
     }
 
     /**
@@ -266,10 +261,8 @@ public class ITProject implements BITS, Serializable {
      **/
     public boolean isInTeam(String name) {
 
-        for (Staff st : membersInTeam) {
-            if (st.getName().equals(name)) {
-                return true;
-            }
+        if (teamStaffs.containsKey(name.toLowerCase())) {
+            return true;
         }
         return false;
     }
@@ -285,7 +278,7 @@ public class ITProject implements BITS, Serializable {
         String s = "************ TEAM ********\n";
         StringBuilder sb = new StringBuilder();
         int staffCounter = 0;
-        for (Staff staff : membersInTeam) {
+        for (Staff staff : teamStaffs.values()) {
             sb.append(staff.getName()).append(",");
             staffCounter += 1;
         }
@@ -321,8 +314,6 @@ public class ITProject implements BITS, Serializable {
         Job job;
         if (!getJob(jbNo).equals("No such Job")) {
             job = getAJob(jbNo);
-            int inexperienceCounter = 0;
-            int unavailabilityCounter = 0;
             Staff staff = getStaffForJob(job);
             if (staff != null) {
                 boolean inExperienced = staff.getExperience() < job.getExpRequired();
@@ -356,48 +347,47 @@ public class ITProject implements BITS, Serializable {
     /**
      * Staff rejoin the team after holiday by setting state to "working"
      *
-     * @param the name of the staff rejoining the team after holiday
+     * @param name name of the staff rejoining the team after holiday
      * @return the outcome of the staff rejoin process
      */
     public String staffRejoinTeam(String name) {
 
-        for (Staff staff : membersInTeam) {
-            if (staff.getName().equalsIgnoreCase(name)) {
-                if (staff.getStaffState().equals(StaffState.ONHOLIDAY)) {
-                    staff.setStaffState(StaffState.WORKING);
-                    return name + " rejoined the team after holiday";
-                } else {
-                    return name + " is already available on team and is not on holiday";
-                }
-
+        if (allStaffs.containsKey(name.toLowerCase())) {
+            Staff staff = allStaffs.get(name.toLowerCase());
+            if (staff.getStaffState().equals(StaffState.ONHOLIDAY)) {
+                staff.setStaffState(StaffState.WORKING);
+                return name + " rejoined the team after holiday";
+            } else {
+                return name + " is already available on team and is not on holiday";
             }
+
         }
         return name + " not in team so can't return from holiday";
     }
 //****************** private methods for Task 6.1 functionality*******************
 
     private void setupStaff() {
-        allStaffs.add(new Staff("Amir", 2, 300.0, "false", "false", 30.0, "Designer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Bela", 2, 100.0, "false", "false", 30.0, "Engineer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Ceri", 4, 250.0, "true", "false", 40.0, "Engineer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Dana", 2, 200.0, "false", "true", 20.0, "Programmer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Eli", 7, 200.0, "false", "true", 20.0, "Programmer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Firat", 6, 300.0, "false", "true", 90.0, "Designer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Gani", 2, 200.0, "false", "true", 20.0, "Programmer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Hui", 8, 450.0, "true", "false", 40.0, "Engineer", StaffState.AVAILABLE));
-        allStaffs.add(new Staff("Jaga", 4, 300.0, "false", "true", 60.0, "Designer", StaffState.AVAILABLE));
+        allStaffs.put("Amir".toLowerCase(), new Staff("Amir", 2, 300.0, "false", "false", 30.0, "Designer", StaffState.AVAILABLE));
+        allStaffs.put("Bela".toLowerCase(), new Staff("Bela", 2, 100.0, "false", "false", 30.0, "Engineer", StaffState.AVAILABLE));
+        allStaffs.put("Ceri".toLowerCase(), new Staff("Ceri", 4, 250.0, "true", "false", 40.0, "Engineer", StaffState.AVAILABLE));
+        allStaffs.put("Dana".toLowerCase(), new Staff("Dana", 2, 200.0, "false", "true", 20.0, "Programmer", StaffState.AVAILABLE));
+        allStaffs.put("Eli".toLowerCase(), new Staff("Eli", 7, 200.0, "false", "true", 20.0, "Programmer", StaffState.AVAILABLE));
+        allStaffs.put("Firat".toLowerCase(), new Staff("Firat", 6, 300.0, "false", "true", 90.0, "Designer", StaffState.AVAILABLE));
+        allStaffs.put("Gani".toLowerCase(), new Staff("Gani", 2, 200.0, "false", "true", 20.0, "Programmer", StaffState.AVAILABLE));
+        allStaffs.put("Hui".toLowerCase(), new Staff("Hui", 8, 450.0, "true", "false", 40.0, "Engineer", StaffState.AVAILABLE));
+        allStaffs.put("Jaga".toLowerCase(), new Staff("Jaga", 4, 300.0, "false", "true", 60.0, "Designer", StaffState.AVAILABLE));
     }
 
 
     private void setupJobs() {
 
-        allJobs.add(new Job(100, "Design", 3, 10, 200));
-        allJobs.add(new Job(101, "Hardware", 3, 20, 150));
-        allJobs.add(new Job(102, "Software", 3, 30, 100));
-        allJobs.add(new Job(103, "Design", 9, 25, 250));
-        allJobs.add(new Job(104, "Software", 7, 15, 350));
-        allJobs.add(new Job(105, "Hardware", 8, 35, 300));
-        allJobs.add(new Job(106, "Hardware", 5, 20, 400));
+        allJobs.put(100, new Job(100, "Design", 3, 10, 200));
+        allJobs.put(101, new Job(101, "Hardware", 3, 20, 150));
+        allJobs.put(102, new Job(102, "Software", 3, 30, 100));
+        allJobs.put(103, new Job(103, "Design", 9, 25, 250));
+        allJobs.put(104, new Job(104, "Software", 7, 15, 350));
+        allJobs.put(105, new Job(105, "Hardware", 8, 35, 300));
+        allJobs.put(106, new Job(106, "Hardware", 5, 20, 400));
     }
 
 // May be helpful    
@@ -409,14 +399,14 @@ public class ITProject implements BITS, Serializable {
      * @return Job object corresponding to job number
      */
     private Job getAJob(int num) {
-        Job jb = null;
-        int nu;
-        for (Job job : allJobs) {
-            if (job.getJobNum() == num) {
-                jb = job;
-            }
-        }
-        return jb;
+//        Job jb = null;
+//        for (Job job : allJobs) {
+//            if (job.getJobNum() == num) {
+//                jb = job;
+//            }
+//        }
+//        return jb;
+        return allJobs.get(num);
     }
 
     /**
@@ -427,7 +417,7 @@ public class ITProject implements BITS, Serializable {
      */
     private Staff getStaffForJob(Job jbb) {
         boolean staffFound = false;
-        for (Staff staff : membersInTeam) {
+        for (Staff staff : teamStaffs.values()) {
             if (staff.getStaffState().equals(StaffState.WORKING)) {
                 switch (jbb.getJobType()) {
                     case "Software":
@@ -475,7 +465,7 @@ public class ITProject implements BITS, Serializable {
 
 
 // Task 2.5
-    // ***************   file write/read  *********************
+// ***************   file write/read  *********************
 
     /**
      * Writes the ITProject object to the specified file using serialization
@@ -530,7 +520,7 @@ public class ITProject implements BITS, Serializable {
      * @filename - name of the text file
      */
     public void readJobs(String fname) {
-        List<Job> jbs = new ArrayList<>();
+        HashMap<Integer, Job> jbs = new HashMap<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fname));
             String line;
@@ -543,7 +533,7 @@ public class ITProject implements BITS, Serializable {
                 int jobPenalty = Integer.parseInt(jobFields[4]);
 
                 Job job = new Job(jobNum, jobType, expRequired, jobHours, jobPenalty);
-                jbs.add(job);
+                jbs.put(jobNum, job);
             }
             allJobs = jbs;
             reader.close();
