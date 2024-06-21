@@ -219,7 +219,7 @@ public class ManagementGeneral {
         pr.hireStaff("Amir");
         String rejoinOutcome = pr.staffRejoinTeam("Amir");
         String expected = "Amir is already available on team and is not on holiday";
-        assertEquals(rejoinOutcome, expected);
+        assertEquals(expected, rejoinOutcome);
     }
 
     //    rejoin a staff not in team
@@ -227,7 +227,7 @@ public class ManagementGeneral {
     public void rejoinStaffNotInTeam() {
         String rejoinOutcome = pr.staffRejoinTeam("Firat");
         String expected = "Firat not in team so can't return from holiday";
-        assertEquals(rejoinOutcome, expected);
+        assertEquals(expected, rejoinOutcome);
     }
 
     //    rejoin a non-existant staff
@@ -264,7 +264,7 @@ public class ManagementGeneral {
     @Test
     public void checkStaffsAvailableForHireAtStart() {
         String st = pr.getAllAvailableStaff();
-        String out = "************ Staff for Hire********\nAmir, Bela, Ceri, Dana, Eli, Firat, Gani, Hui, Jaga\n";
+        String out = "************ Staff for Hire********\nJaga, Eli, Gani, Bela, Ceri, Amir, Firat, Hui, Dana\n";
         assertEquals(st, out);
     }
 

@@ -111,8 +111,8 @@ public class ManagementHiring
     public void viewStaffsAvailableAfterHiringAStaff(){
         pr.hireStaff("Bela");
         String result = pr.getAllAvailableStaff();
-        String expected = "************ Staff for Hire********\nAmir, Ceri, Dana, Eli, Firat, Gani, Hui, Jaga\n";
-        assertEquals(result, expected);
+        String expected = "************ Staff for Hire********\nJaga, Eli, Gani, Ceri, Amir, Firat, Hui, Dana\n";
+        assertEquals(expected, result);
     }
 
     @Test

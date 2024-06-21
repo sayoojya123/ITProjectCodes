@@ -217,7 +217,7 @@ public class ITProject implements BITS, Serializable {
                 if (account >= teamMember.getRetainer()) {
                     teamMember.setStaffState(StaffState.WORKING);
                     account -= teamMember.getRetainer();
-                    teamStaffs.put(name, teamMember);
+                    teamStaffs.put(name.toLowerCase(), teamMember);
                     result += " hired";
 
                 } else {
@@ -352,15 +352,14 @@ public class ITProject implements BITS, Serializable {
      */
     public String staffRejoinTeam(String name) {
 
-        if (allStaffs.containsKey(name.toLowerCase())) {
-            Staff staff = allStaffs.get(name.toLowerCase());
+        if (teamStaffs.containsKey(name.toLowerCase())) {
+            Staff staff = teamStaffs.get(name.toLowerCase());
             if (staff.getStaffState().equals(StaffState.ONHOLIDAY)) {
                 staff.setStaffState(StaffState.WORKING);
                 return name + " rejoined the team after holiday";
             } else {
                 return name + " is already available on team and is not on holiday";
             }
-
         }
         return name + " not in team so can't return from holiday";
     }
