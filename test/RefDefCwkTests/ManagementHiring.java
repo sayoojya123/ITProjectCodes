@@ -85,9 +85,9 @@ public class ManagementHiring
     /********* Mytests **************/
 
     @Test
-    public void hireStaffBela(){
-        String hireResult = pr.hireStaff("Bela");
-        String result = "Staff Bela hired\nAccount = £ 900.0\n";
+    public void hireStaffFirat(){
+        String hireResult = pr.hireStaff("Firat");
+        String result = "Staff Firat hired\nAccount = £ 700.0\n";
         assertEquals(hireResult,result);
     }
 

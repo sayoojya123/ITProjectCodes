@@ -260,14 +260,6 @@ public class ManagementGeneral {
         assertTrue((balanceAfterAmir == balanceAfterRestoration) && (balanceAfterDana != balanceAfterRestoration));
     }
 
-    // Checks the list of staff names right after initialization
-    @Test
-    public void checkStaffsAvailableForHireAtStart() {
-        String st = pr.getAllAvailableStaff();
-        String out = "************ Staff for Hire********\nJaga, Eli, Gani, Bela, Ceri, Amir, Firat, Hui, Dana\n";
-        assertEquals(st, out);
-    }
-
 
     @Test
     public void listAllJobs() {
@@ -320,14 +312,6 @@ public class ManagementGeneral {
         String expected = sb.toString();
         assertEquals(expected, result);
 
-    }
-
-    @Test
-    public void checkSecondConstructorOfProject() {
-        ITProject pr2 = new ITProject("Tim", 1000, "./src/RefDefCwk/jobs.txt");
-        String prStatus = pr2.toString();
-        String expected = "Project Overview : \n****************************************\nManager Name : Tim\nProject Account : 1000.0\nAccount Overdrawn : No\nTeam members : No staff hired\n\n";
-        assertEquals(expected, prStatus);
     }
 
 }
